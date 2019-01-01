@@ -101,7 +101,7 @@ class ReconOpsOutput:
 
     def hostname_output(self):
 
-        host_title = '{0:20} {1:16} {2:18} {3:18} {4:1}\n'.format('[ Host ]', '[ IPv4 ]', '[ MAC ]', '[ Domain ]', '[ OS ]')
+        host_title = '{0:20} {1:16} {2:18} {3:18} {4:30} {5:1}\n'.format('[ Host ]', '[ IPv4 ]', '[ MAC ]', '[ Domain ]', '[ Windows NT ]', '[ Notes ]')
         print self.color(host_title, char='')
 
         for host in sorted(self.hosts):
@@ -109,22 +109,14 @@ class ReconOpsOutput:
             ipv4 = self.hosts[host]['ipv4']
             mac = self.hosts[host]['mac']
 
-            if host == None and ipv4 == '0.0.0.0' and mac:
-
-                os = 'Unknown'
-                domain = 'Unknown'
-
-                host_output = '{0:20} {1:16} {2:18} {3:18} {4:1}'.format(host, ipv4, mac, domain, os)
-
-                print self.color(host_output, char='')
-
-            else:
+            if host != None and ipv4 != '0.0.0.0' and '*' not in host:
 
                 mac = self.hosts[host]['mac']
                 os = self.hosts[host]['os']
                 domain = self.hosts[host]['domain']
+                notes = self.hosts[host]['notes']
 
-                host_output = '{0:20} {1:16} {2:18} {3:18} {4:1}'.format(host, ipv4, mac, domain, os)
+                host_output = '{0:20} {1:16} {2:18} {3:18} {4:30} {5:1}'.format(host, ipv4, mac, domain, os.split('(')[1].split(')')[0].strip(), notes)
 
                 print self.color(host_output, char='')
 

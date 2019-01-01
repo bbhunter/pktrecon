@@ -40,7 +40,7 @@ class WINBROWSER:
                     router = None
                     raw_packet = list(str(packet[Raw]))
                     browser_cmd = raw_packet[85:87]
-                    local_master_comment = None
+                    notes = None
                     attack = None
                     protocol = 'Windows Browser Datagram'
 
@@ -60,7 +60,7 @@ class WINBROWSER:
                         announcement = "Local Master Announcement"
 
                         if raw_packet[118:] != ['\x00']:
-                            local_master_comment = ''.join(raw_packet[118:]).strip()
+                            notes = ''.join(raw_packet[118:]).strip()
 
                     else:
                         announcement = None
@@ -121,8 +121,8 @@ class WINBROWSER:
                     if os not in self.keys['fingerprints'] and os != None and os != 'Unknown':
                         self.keys['fingerprints'].append(os)
 
-                    if local_master_comment not in self.keys['fingerprints'] and local_master_comment != None:
-                        self.keys['fingerprints'].append(local_master_comment)
+                    if notes not in self.keys['fingerprints'] and notes != None:
+                        self.keys['fingerprints'].append(notes)
 
                     if router not in self.keys['routers'] and router != None:
                         self.keys['routers'].append(router)
@@ -131,7 +131,7 @@ class WINBROWSER:
                         self.keys['dns'].append(dns)
 
                     if hostname not in self.keys['hosts'].keys() and hostname != None:
-                        self.keys['hosts'].update({hostname: {'mac': mac, 'domain': domain, 'ipv4': host_ipv4, 'ipv6': ipv6, 'os': os, 'notes': local_master_comment, 'protocol': protocol, 'segment': segment}})
+                        self.keys['hosts'].update({hostname: {'mac': mac, 'domain': domain, 'ipv4': host_ipv4, 'ipv6': ipv6, 'os': os, 'notes': notes, 'protocol': protocol, 'segment': segment}})
 
                     else:
 
