@@ -55,6 +55,7 @@ There is a ton of work to do on pktrecon, and many pieces of it still need to be
 I will try to update and maintain pktrecon as often as possible.
 Here are just a few of the things currently in progress:
 
+- Project screenshots and extended documentation
 - Active network interface packet capture
 - Domain controller identification
 - Cross-network segment host data correlation
