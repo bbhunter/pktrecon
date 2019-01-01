@@ -11,13 +11,13 @@ before resorting to more active methods.
 
 The protocols and services utilized by pktrecon include:
 
-  - Cisco Discovery Protocol (CDP)
-  - Link Local Discovery Protocol (LLDP)
-  - NetBIOS Name Service
-  - Windows Browser Datagrams
-  - Link Local Multicast Name Resolution (LLMNR)
-  - Dynamic Host Configuration Protocol Version 4 (DHCPv4)
-  - Dynamic Host Configuration Protocol Version 6 (DHCPv6)
+  - Cisco Discovery Protocol               (CDP)
+  - Link Local Discovery Protocol          (LLDP)
+  - NetBIOS Name Service                   (NBNS)
+  - Windows Browser Datagrams              (WINBROWSER)
+  - Link Local Multicast Name Resolution   (LLMNR)
+  - Dynamic Host Configuration Protocol v4 (DHCPv4)
+  - Dynamic Host Configuration Protocol v6 (DHCPv6)
 
 ## recon data
 
