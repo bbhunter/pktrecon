@@ -40,6 +40,7 @@ class CDP:
                     router = None
                     segment = None
                     protocol = 'CDP'
+                    notes = None
 
                     cdp_version = str(int(str(raw_packet[0]).encode('hex'), 16)).strip()
                     cdp_ttl = str(int(str(raw_packet[1]).encode('hex'), 16)).strip()
@@ -107,7 +108,7 @@ class CDP:
                         self.keys['fingerprints'].append(cdp_platform_name)
 
                     if hostname not in self.keys['gateways'].keys() and hostname != None:
-                        self.keys['gateways'].update({hostname:{'ipv4': ipv4, 'ipv6': ipv6, 'domain': domain, 'protocol': protocol, 'cdp_version': cdp_version, 'cdp_port_id': cdp_port_id, 'cdp_ttl': cdp_ttl, 'cdp_checksum': cdp_checksum, 'cdp_software_version': 'v{}'.format(cdp_software_version), 'cdp_platform_name': cdp_platform_name, 'cdp_vlan': cdp_vlan}})
+                        self.keys['gateways'].update({hostname:{'ipv4': ipv4, 'ipv6': ipv6, 'domain': domain, 'protocol': protocol, 'cdp_version': cdp_version, 'cdp_port_id': cdp_port_id, 'cdp_ttl': cdp_ttl, 'cdp_checksum': cdp_checksum, 'cdp_software_version': 'v{}'.format(cdp_software_version), 'cdp_platform_name': cdp_platform_name, 'cdp_vlan': cdp_vlan, 'notes': notes}})
 
 
         return self.keys

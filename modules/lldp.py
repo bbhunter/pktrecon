@@ -46,6 +46,7 @@ class LLDP:
                     segment = None
                     dns = None
                     router = None
+                    notes = None
 
                     # Get Chassis ID
                     chassis_id = ''
@@ -74,9 +75,12 @@ class LLDP:
 
                     if '\x0e' in raw_packet:
                     # Get LLDP Management Address
+                        mgt_addr_type_index = None
+                        mgt_addr_type = None
 
-                        mgt_addr_type_index = raw_packet.index('\x10')
-                        mgt_addr_type = raw_packet[(mgt_addr_type_index + 3)]
+                        if '\x10' in raw_packet:
+                            mgt_addr_type_index = raw_packet.index('\x10')
+                            mgt_addr_type = raw_packet[(mgt_addr_type_index + 3)]
 
                         if mgt_addr_type == '\x06':
                             mgt_address_type = '802 Media'
@@ -141,7 +145,7 @@ class LLDP:
                         self.keys['dns'].append(dns)
 
                     if hostname not in self.keys['gateways'].keys() and hostname != None:
-                        self.keys['gateways'].update({hostname: {'mac': mac, 'ipv6': ipv6, 'domain': domain, 'sysinfo': system_description, 'ipv4': mgt_ipv4, 'mgt_802': mgt_802, 'mgt_addr_type': mgt_address_type, 'address': address, 'chassis_id_mac': chassis_id_mac, 'os': os, 'tr-41-location-id': address, 'protocol': protocol}})
+                        self.keys['gateways'].update({hostname: {'mac': mac, 'ipv6': ipv6, 'domain': domain, 'sysinfo': system_description, 'ipv4': mgt_ipv4, 'mgt_802': mgt_802, 'mgt_addr_type': mgt_address_type, 'address': address, 'chassis_id_mac': chassis_id_mac, 'os': os, 'tr-41-location-id': address, 'protocol': protocol, 'notes': notes}})
 
 
         return self.keys

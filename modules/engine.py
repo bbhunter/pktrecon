@@ -101,7 +101,7 @@ class ReconOpsOutput:
 
     def hostname_output(self):
 
-        host_title = '{0:20} {1:16} {2:18} {3:18} {4:30} {5:1}\n'.format('[ Host ]', '[ IPv4 ]', '[ MAC ]', '[ Domain ]', '[ Windows NT ]', '[ Notes ]')
+        host_title = '{0:20} {1:16} {2:20} {3:18} {4:18} {5:1}\n'.format('[ Host ]', '[ IPv4 ]', '[ MAC ]', '[ Domain ]', '[ Windows NT ]', '[ Notes ]')
         print self.color(host_title, char='')
 
         for host in sorted(self.hosts):
@@ -113,14 +113,22 @@ class ReconOpsOutput:
 
                 mac = self.hosts[host]['mac']
                 os = self.hosts[host]['os']
+                nt_version = None
+
+                if os != None and not os.startswith('Microsoft'):
+                    nt_version = os.split('(')[1].split(')')[0].strip()
+
                 domain = self.hosts[host]['domain']
                 notes = self.hosts[host]['notes']
 
-                host_output = '{0:20} {1:16} {2:18} {3:18} {4:30} {5:1}'.format(host, ipv4, mac, domain, os.split('(')[1].split(')')[0].strip(), notes)
+                if notes == None:
+                    notes = ''
+
+                host_output = '{0:20} {1:16} {2:20} {3:18} {4:18} {5:1}'.format(host, ipv4, mac, domain, nt_version, notes)
 
                 print self.color(host_output, char='')
 
-        print '\n'
+        print ''
 
 
     def domains_output(self):
@@ -132,18 +140,18 @@ class ReconOpsOutput:
             if domain != None:
                 print self.color(domain)
 
-        print '\n'
+        print ''
 
     def ports_output(self):
 
         ports_title = '[ Ports ]\n'
         print self.color(ports_title, char='')
-        print 'nmap -Pn -sS -p{} -sV --open <targets>'.format(','.join(self.ports))
+
         for port in self.ports:
 
             print self.color(port)
 
-        print '\n'
+        print ''
 
     def protos_output(self):
 
@@ -154,7 +162,7 @@ class ReconOpsOutput:
 
             print self.color(proto)
 
-        print '\n'
+        print ''
 
     def gateways_output(self):
 
@@ -173,7 +181,7 @@ class ReconOpsOutput:
             if len(self.gateways.keys()) > 1:
                 print ''
 
-        print '\n'
+        print ''
 
     def dns_output(self):
 
@@ -184,18 +192,28 @@ class ReconOpsOutput:
 
             print self.color(d)
 
-        print '\n'
+        print ''
 
     def routers_output(self):
 
-        routers_title = '[ Routers ]\n'
+        routers_title = '{0:18} {1:18} {2:1}'.format('[ Router ]','[Server ID]','[ Name Servers ]')
         print self.color(routers_title, char='')
 
-        for router in sorted(list(set(self.routers))):
+        for router in sorted(list(set(self.routers.keys()))):
 
-            print self.color(router)
+            routerkeys = self.routers[router].keys()
+            router = self.routers[router]['router']
+            server_id = self.routers[router]['server_id']
+            name_servers = self.routers[router]['name_server']
 
-        print '\n'
+            if type(name_servers) == 'list':
+                name_servers = ', '.join(name_servers)
+
+            router_output = '{0:18} {1:18} {2:1}'.format(router, server_id, name_servers)
+
+            print router_output
+
+        print ''
 
     def ports_output(self):
 
@@ -206,18 +224,18 @@ class ReconOpsOutput:
 
             print self.color(port)
 
-        print '\n'
+        print ''
 
     def fingerprints_output(self):
 
         fingerprints_title = '[ Fingerprints ]\n'
         print self.color(fingerprints_title, char='')
 
-        for fingerprint in self.fprints:
+        for fingerprint in sorted(list(set(self.fprints))):
 
             print self.color(fingerprint)
 
-        print '\n'
+        print ''
 
     def summary_output(self):
 
@@ -233,7 +251,7 @@ class ReconOpsOutput:
         print 'Routers:      {}'.format(len(self.routers.keys()))
         print 'DNS Servers:  {}'.format(len(self.dns))
 
-        print '\n'
+        print ''
 
     def red(self, out, char='-'):
 
