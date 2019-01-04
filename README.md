@@ -21,29 +21,20 @@ The protocols and services utilized by pktrecon include:
 
 ## recon data
 
-Some examples of data which can be obtained strictly from a packet capture using pktrecon includes:
+Examples of data which pktrecon can potentially obtain from a packet capture include:
 
-- Host names, MAC addresses, and Domain names
-- IPv4 and IPv6 Addresses
-- Protocols and Ports
-- Windows Operating System Fingerprints and NT Version Numbers
-
-- CDP device names and management IPv4 addresses
-- CDP and LLDP Native VLANs and Port IDs
-- CDP PoE Power (Power management ID, available power, management power level)
-- CDP and LLDP Platform / System Description / Fingerprint
-
-- DHCPv4 Bootstrap Hostname, Client ID, Vendor Class ID
-- DHCPv4 Bootstrap Acknowledgement Name Server and Router IPv4 Addresses
-- DHCPv4 Bootstrap Acknowledgement Time Zone, Lease Time, Renewal Time, and Rebinding Time
-- DHCPv4 Bootstrap Acknowledgement Client FQDN and Subnet Mask
-
-
-lease_time
-broadcast_address
-domain
-NetBIOS_server
-
+- Hostnames and FQDN's
+- MAC addresses and subnet masks
+- Domain names
+- IPv4 and IPv6 addresses
+- Windows operating system fingerprints / NT version numbers / Vendor class ID's
+- SMB server fingerprints
+- DNS name server IPv4 addresses
+- Router IPv4 addresses, time zone, lease time, renewal time, and rebinding time
+- Cisco device names and management IPv4 addresses
+- Native VLANs and port IDs
+- PoE Power (Power management ID, available power, management power level)
+- Switch and firewall platform / System description / Fingerprints / Software build versions
 
 ## installation
 
