@@ -68,19 +68,19 @@ class CDP:
 
                     ipv4 = '.'.join(cdp_addr_list)
 
-                    cdp_port_id_type = raw_packet[(13 + (cdp_device_id_length - 4)) + 12:(13 + (cdp_device_id_length - 4)) + 14]
+                    cdp_port_id_type = str(''.join(raw_packet[(13 + (cdp_device_id_length - 4)) + 12:(13 + (cdp_device_id_length - 4)) + 14]).encode('hex'))
                     cdp_port_id_length = int(''.join(raw_packet[(13 + (cdp_device_id_length - 4)) + 14:(13 + (cdp_device_id_length - 4)) + 16]).encode('hex'), 16)
-                    cdp_port_id_str = ''.join(raw_packet[(13 + (cdp_device_id_length - 4)) + (12 + 4):(17 + (cdp_device_id_length - 4)) + 19])
-                    cdp_port_id = cdp_port_id_str.split()[1].strip()
+                    cdp_port_id = str(''.join(raw_packet[(13 + (cdp_device_id_length - 4)) + 16:(13 + (cdp_device_id_length - 4)) + (16 - 4) + cdp_port_id_length])).strip()
+
+                    cdp_platform_list = raw_packet[(17 + (cdp_device_id_length - 4)) + 19 + 8 + 5:(17 + (cdp_device_id_length - 4)) + 19 + 8 + 5 + 14]
 
                     cdp_cap = raw_packet[(17 + (cdp_device_id_length - 4)) + 19:(17 + (cdp_device_id_length - 4)) + 19 + 8]
                     cap = cdp_cap[4:]
 
-                    cdp_software_list = raw_packet[(17 + (cdp_device_id_length - 4)) + 19 + 8:(17 + (cdp_device_id_length - 4)) + 19 + 8 + 5]
-                    cdp_software_length = int(''.join(cdp_software_list[2:4]).encode('hex'), 16)
-                    cdp_software_version = cdp_software_list[(cdp_software_length - 1)]
+                    cdp_software_type = str(''.join(raw_packet[(19 + (cdp_device_id_length - 4)) + 19 + 8:(17 + (cdp_device_id_length - 4)) + 19 + 8 + 2]).encode('hex')).strip()
+                    cdp_software_length = int(''.join(raw_packet[(19 + (cdp_device_id_length - 4)) + 19 + 8 + 2:(19 + (cdp_device_id_length - 4)) + 19 + 8 + 4]).encode('hex'), 16)
+                    cdp_software_version = str(''.join(raw_packet[(19 + (cdp_device_id_length - 4)) + 19 + 8 + 4: cdp_software_length])).strip()
 
-                    cdp_platform_list = raw_packet[(17 + (cdp_device_id_length - 4)) + 19 + 8 + 5:(17 + (cdp_device_id_length - 4)) + 19 + 8 + 5 + 14]
                     cdp_platform_type = ''.join(cdp_platform_list[0:2]).encode('hex')
                     cdp_platform_length = int(''.join(list(cdp_platform_list[2:4])).encode('hex'), 16)
                     cdp_platform_name = str(''.join(cdp_platform_list[4:cdp_platform_length]))
@@ -96,6 +96,8 @@ class CDP:
                     cdp_power_avail_min = str(int(''.join(cdp_powerlist[8:12]).encode('hex'), 16)).strip()
                     cdp_power_avail_max = str(int(''.join(cdp_powerlist[12:16]).encode('hex'), 16)).strip()
 
+                    cdp_power = {'cdp_power_mgt_id': cdp_power_mgt_id, 'cdp_power_available': cdp_power_avail_min, 'cdp_power_max': cdp_power_avail_max}
+
                     hostname = cdp_device_id
 
                     if domain not in self.keys['domains'] and domain != None:
@@ -108,7 +110,7 @@ class CDP:
                         self.keys['fingerprints'].append(cdp_platform_name)
 
                     if hostname not in self.keys['gateways'].keys() and hostname != None:
-                        self.keys['gateways'].update({hostname:{'ipv4': ipv4, 'ipv6': ipv6, 'domain': domain, 'protocol': protocol, 'cdp_version': cdp_version, 'cdp_port_id': cdp_port_id, 'cdp_ttl': cdp_ttl, 'cdp_checksum': cdp_checksum, 'cdp_software_version': 'v{}'.format(cdp_software_version), 'cdp_platform_name': cdp_platform_name, 'cdp_vlan': cdp_vlan, 'notes': notes}})
+                        self.keys['gateways'].update({hostname:{'ipv4': ipv4, 'ipv6': ipv6, 'domain': domain, 'protocol': protocol, 'cdp_version': cdp_version, 'cdp_port_id': cdp_port_id, 'cdp_ttl': cdp_ttl, 'cdp_checksum': cdp_checksum, 'cdp_software_version': 'v{}'.format(cdp_software_version), 'cdp_platform_name': cdp_platform_name, 'cdp_vlan': cdp_vlan, 'notes': notes, 'power': cdp_power}})
 
 
         return self.keys

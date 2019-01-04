@@ -20,7 +20,7 @@ class DHCPV4:
 
     def search(self):
 
-        datasets = ['server_id','client_id','router','name_server','hostname','vendor_class_id','lease_time','broadcast_address','domain','NetBIOS_server']
+        datasets = ['server_id','client_id','router','name_server','hostname','vendor_class_id','time_zone', 'lease_time', 'renewal_time', 'rebinding_time', 'broadcast_address','domain','NetBIOS_server']
         sessions = self.data.sessions()
 
         for session in sessions:
@@ -34,6 +34,7 @@ class DHCPV4:
                     domain = None
                     os = None
                     hostname = None
+                    notes = None
                     cipv4 = None
                     dns = None
                     fqdn = None
@@ -58,18 +59,23 @@ class DHCPV4:
                             testkeys.update(objkeys)
 
                     if boot_type == 1:
+
                         ipv4 = packet[IP].src
-                        testkeys.update({'mac': mac, 'domain': domain, 'ipv4': ipv4, 'ipv6': ipv6, 'os': os})
+                        notes = 'DHCPv4 Bootstrap Client'
+                        testkeys.update({'mac': mac, 'domain': domain, 'ipv4': ipv4, 'ipv6': ipv6, 'os': os, 'notes': notes})
 
                         if 'hostname' in testkeys.keys() and testkeys['hostname'] not in self.keys['hosts'].keys() and testkeys['hostname'] != None:
                             self.keys['hosts'].update({hostname: testkeys})
 
                     if boot_type == 2:
+                        packet[DHCP].show()
+                        print raw_packet
 
                         if 'router' in testkeys.keys() and testkeys['router'] not in self.keys['routers'].keys() and testkeys['router'] != None:
                             self.keys['routers'].update({testkeys['router']:testkeys})
 
                         if 'name_server' in testkeys.keys() and testkeys['name_server'] not in self.keys['dns'] and testkeys['name_server'] != None:
                             self.keys['dns'].append(testkeys['name_server'])
+
 
         return self.keys

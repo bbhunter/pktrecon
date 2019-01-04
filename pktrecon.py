@@ -77,10 +77,10 @@ def main():
                       'domains': []
                       }
 
-        print ColorOut('Loading PCAP file: {}...'.format(loadfile)).nocolor()
+        print ColorOut('Loading PCAP file: {}...'.format(loadfile), char='. ').nocolor()
         pcap_buf = rdpcap(loadfile)
 
-        print ColorOut('Performing packet reconnaissance...\n').nocolor()
+        print ColorOut('Performing packet reconnaissance...\n', char='. ').nocolor()
         load_protocol_modules = LoadModules(pcap_buf, recon_keys, pktmodules, pktpath, color)
 
 if __name__ == '__main__':

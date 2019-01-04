@@ -46,18 +46,23 @@ class WINBROWSER:
 
                     if browser_cmd[1] == '\x01':
                         announcement = "Host Announcement"
+                        notes = 'Performed {}'.format(announcement.lower())
 
                     elif browser_cmd[1] == '\x02':
                         announcement = "Request Announcement"
+                        notes = 'Performed {}'.format(announcement.lower())
 
                     elif browser_cmd[1] == '\x0b':
                         announcement = "Become Backup Browser"
+                        notes = 'Performed {}'.format(announcement.lower())
 
                     elif browser_cmd[1] == '\x0c':
                         announcement = "Domain/Workgroup Announcement"
+                        notes = 'Performed {}'.format(announcement.lower())
 
                     elif browser_cmd[1] == '\x0f':
                         announcement = "Local Master Announcement"
+                        notes = 'Performed {}'.format(announcement.lower())
 
                         if raw_packet[118:] != ['\x00']:
                             notes = ''.join(raw_packet[118:]).strip()
@@ -71,13 +76,13 @@ class WINBROWSER:
                             os = 'Windows 10 / Server 2016 (NT 10.0)'
 
                         elif list(raw_packet[108:110])[0] == '\x06' and list(raw_packet[108:110])[1] == '\x00':
-                            os = 'Windows Vista / Windows Server 2008 (NT 6.0)'
+                            os = 'Windows Vista / Server 2008 (NT 6.0)'
 
                         elif list(raw_packet[108:110])[0] == '\x06' and list(raw_packet[108:110])[1] == '\x01':
-                            os = 'Windows 7 / Windows Server 2008 R2 (NT 6.1)'
+                            os = 'Windows 7 / Server 2008 R2 (NT 6.1)'
 
                         elif list(raw_packet[108:110])[0] == '\x06' and list(raw_packet[108:110])[1] == '\x02':
-                            os = 'Windows 8 / Windows Server 2012 (NT 6.2)'
+                            os = 'Windows 8 / Server 2012 (NT 6.2)'
 
                         elif list(raw_packet[108:110])[0] == '\x06' and list(raw_packet[108:110])[1] == '\x03':
                             os = 'Windows 8.1 / Server 2012 R2 (NT 6.3)'
@@ -91,7 +96,7 @@ class WINBROWSER:
                             os = 'Windows XP (NT 5.1)'
 
                         elif list(raw_packet[108:110])[0] == '\x05' and list(raw_packet[108:110])[1] == '\x02':
-                            os = 'Windows XP Pro x64 / Windows Server 2003 / Windows Server 2003 R2 (NT 5.2)'
+                            os = 'Windows XP Pro x64 / Server 2003 / Server 2003 R2 (NT 5.2)'
 
                         else:
                             os = None
@@ -121,7 +126,7 @@ class WINBROWSER:
                     if os not in self.keys['fingerprints'] and os != None and os != 'Unknown':
                         self.keys['fingerprints'].append(os)
 
-                    if notes not in self.keys['fingerprints'] and notes != None:
+                    if notes not in self.keys['fingerprints'] and notes != None and not notes.startswith('Performed'):
                         self.keys['fingerprints'].append(notes)
 
                     if router not in self.keys['routers'] and router != None:

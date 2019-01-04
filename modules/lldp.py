@@ -32,7 +32,7 @@ class LLDP:
                     mac = packet[Ether].src
                     raw_packet = list(str(packet[Raw]))
 
-                    hostname = 'LLDP-Host-{}'.format(mac)
+                    hostname = '{}'.format(mac)
                     domain = None
                     os = None
                     ipv6 = None
@@ -57,21 +57,23 @@ class LLDP:
                         chassis_id += '{}:'.format(str(chassis_obj.encode('hex')))
 
                     chassis_id_mac = chassis_id.rstrip(':')
+
                     # Get LLDP System Name
                     if '\x0a' in raw_packet:
 
-                        system_name_start = raw_packet.index('\x0a')
-                        system_name_list = raw_packet[(system_name_start + 2):]
-                        system_name = ''.join(system_name_list).rsplit('\x0c')[0]
+                        system_name_start = int(raw_packet.index('\x0a'))
+                        system_name_type = raw_packet[system_name_start].encode('hex')
+                        system_name_length = int(raw_packet[system_name_start + 1].encode('hex'), 16)
 
-                        hostname = system_name
+                        system_name = ''.join(raw_packet[system_name_start + 2:system_name_start + system_name_length + 2])
 
                     if '\x0c' in raw_packet:
                     # Get LLDP System Description
 
                         system_description_start = raw_packet.index('\x0c')
                         system_description_list = raw_packet[(system_description_start + 2):]
-                        system_description = ''.join(system_description_list).rsplit('\x0e')[0].rsplit('\x08')[0]
+                        system_description = str(''.join(system_description_list).rsplit('\x0e')[0].rsplit('\x08')[0]).strip()
+
 
                     if '\x0e' in raw_packet:
                     # Get LLDP Management Address
@@ -97,8 +99,6 @@ class LLDP:
                             mgt_address_type = 'IPv4'
                             mgt_addr_start = raw_packet[(mgt_addr_type_index + 4):(mgt_addr_type_index + 8)]
                             mgt_addr_list = []
-#                            mgt_addr_start = list(''.join(system_description_list).rsplit('\x0e')[1].split()[1][2:])[0:4]
-
 
                             for mgt in mgt_addr_start:
                                 octet = int(mgt.encode('hex'), 16)
@@ -106,7 +106,6 @@ class LLDP:
 
                                 mgt_ipv4 = '.'.join(mgt_addr_list)
 
-                            # Parse LLDP Telecommunications data / TR-41 data (could also potentially be repeated system name)
                         if '\xfe' in raw_packet and mgt_addr_type == '\x01':
 
                             teledata_start = raw_packet.index('\xfe')
@@ -115,16 +114,22 @@ class LLDP:
                             if len(teledata_list) == 4:
 
                                 media_capabilities = teledata_list[0]
-                                network_policy = teledata_list[1]
-                                location_identification = teledata_list[2]
-                                extended_power = teledata_list[3]
+                                print media_capabilities
 
+                                network_policy = teledata_list[1]
+                                print network_policy
+
+                                location_identification = teledata_list[2]
+                                print location_identification
+
+                                extended_power = teledata_list[3]
+                                print extended_power
 
                                 country = location_identification[8:10]
                                 state = location_identification[12:14]
-                                city = ''.join(location_identification[16:]).rsplit('\x06')[0]
-                                street = ''.join(location_identification[16:]).rsplit('\x06')[1].rsplit('\x13')[0].strip()
-                                number = ''.join(location_identification[16:]).rsplit('\x06')[1].split('\x13')[1][1:5].strip()
+                                city = str(''.join(location_identification[16:]).rsplit('\x06')[0]).strip()
+                                street = str(''.join(location_identification[16:]).rsplit('\x06')[1].rsplit('\x13')[0]).strip()
+                                number = str(''.join(location_identification[16:]).rsplit('\x06')[1].split('\x13')[1][1:5]).strip()
                                 unit = location_identification[-3:]
 
                                 address = '{} {} {} - {}, {} - {}'.format(number, street, unit, city, state, country)
@@ -144,8 +149,9 @@ class LLDP:
                     if dns not in self.keys['dns'] and dns != None:
                         self.keys['dns'].append(dns)
 
+                    hostname = system_name
                     if hostname not in self.keys['gateways'].keys() and hostname != None:
-                        self.keys['gateways'].update({hostname: {'mac': mac, 'ipv6': ipv6, 'domain': domain, 'sysinfo': system_description, 'ipv4': mgt_ipv4, 'mgt_802': mgt_802, 'mgt_addr_type': mgt_address_type, 'address': address, 'chassis_id_mac': chassis_id_mac, 'os': os, 'tr-41-location-id': address, 'protocol': protocol, 'notes': notes}})
+                        self.keys['gateways'].update({hostname: {'mac': mac, 'ipv6': ipv6, 'domain': domain, 'sysinfo': system_description, 'ipv4': mgt_ipv4, 'mgt_802': mgt_802, 'mgt_addr_type': mgt_address_type, 'address': address, 'chassis_id_mac': chassis_id_mac, 'os': os, 'protocol': protocol, 'notes': notes}})
 
 
         return self.keys

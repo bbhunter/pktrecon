@@ -598,23 +598,23 @@ def pktrecon_console_output(rkeys, rpath, c):
     if hosts.keys() != []:
         pktoutput.hostname_output()
 
-    if domains != []:
-        pktoutput.domains_output()
+    if gateways.keys() != []:
+        pktoutput.gateways_output()
+
+    if routers.keys() != []:
+        pktoutput.routers_output()
+
+    if dns != []:
+        pktoutput.dns_output()
 
     if fingerprints != []:
         pktoutput.fingerprints_output()
+
+    if domains != []:
+        pktoutput.domains_output()
 
     if ports != []:
         pktoutput.ports_output()
 
     if protocols != []:
         pktoutput.protos_output()
-
-    if gateways.keys() != []:
-        pktoutput.gateways_output()
-
-    if dns != []:
-        pktoutput.dns_output()
-
-    if routers.keys() != []:
-        pktoutput.routers_output()

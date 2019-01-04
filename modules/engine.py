@@ -101,12 +101,16 @@ class ReconOpsOutput:
 
     def hostname_output(self):
 
-        host_title = '{0:20} {1:16} {2:20} {3:18} {4:18} {5:1}\n'.format('[ Host ]', '[ IPv4 ]', '[ MAC ]', '[ Domain ]', '[ Windows NT ]', '[ Notes ]')
+        host_title = '| {0:16} | {1:16} | {2:16} | {3:18} | {4:12} | {5:1}'.format('Host', 'IPv4', 'IPv6', 'MAC', 'Domain', 'Windows OS')
+
+        print self.color('-' * len(host_title), char='')
         print self.color(host_title, char='')
+        print self.color('-' * len(host_title), char='')
 
         for host in sorted(self.hosts):
 
             ipv4 = self.hosts[host]['ipv4']
+            ipv6 = self.hosts[host]['ipv6']
             mac = self.hosts[host]['mac']
 
             if host != None and ipv4 != '0.0.0.0' and '*' not in host:
@@ -114,9 +118,11 @@ class ReconOpsOutput:
                 mac = self.hosts[host]['mac']
                 os = self.hosts[host]['os']
                 nt_version = None
+                os_version = None
 
                 if os != None and not os.startswith('Microsoft'):
                     nt_version = os.split('(')[1].split(')')[0].strip()
+                    os_version = os.split('(')[0].strip()
 
                 domain = self.hosts[host]['domain']
                 notes = self.hosts[host]['notes']
@@ -124,7 +130,7 @@ class ReconOpsOutput:
                 if notes == None:
                     notes = ''
 
-                host_output = '{0:20} {1:16} {2:20} {3:18} {4:18} {5:1}'.format(host, ipv4, mac, domain, nt_version, notes)
+                host_output = '| {0:16} | {1:16} | {2:16} | {3:18} | {4:12} | {5:1}'.format(host, ipv4, ipv6, mac, domain, os_version)
 
                 print self.color(host_output, char='')
 
@@ -133,71 +139,112 @@ class ReconOpsOutput:
 
     def domains_output(self):
 
-        domains_title = '[ Domains ]\n'
+        domains_title = '| Domains |\n'
         print self.color(domains_title, char='')
 
         for domain in self.domains:
             if domain != None:
-                print self.color(domain)
+                print self.color('| {}'.format(domain), char='')
 
         print ''
 
     def ports_output(self):
 
-        ports_title = '[ Ports ]\n'
+        ports_title = '| Ports |\n'
         print self.color(ports_title, char='')
 
         for port in self.ports:
 
-            print self.color(port)
+            print self.color('{}'.format(port), char=' . ')
 
         print ''
 
     def protos_output(self):
 
-        protos_title = '[ Protocols ]\n'
+        protos_title = '| Protocols |\n'
         print self.color(protos_title, char='')
 
         for proto in self.protocols:
 
-            print self.color(proto)
+            print self.color('{}'.format(proto), char=' . ')
 
         print ''
 
     def gateways_output(self):
 
-        gateways_title = '[ Gateways ]\n'
+        gateways_title = '| {0:30} | {1:18} | {2:8} | {3:16} | {4:30} | {5:1}'.format('Device','MgtIPv4','VLAN','Port','Power','Platform')
+
+        print self.color('-' * len(gateways_title), char='')
         print self.color(gateways_title, char='')
+        print self.color('-' * len(gateways_title), char='')
 
-        for gateway in sorted(list(set(self.gateways.keys()))):
+        for device in sorted(list(set(self.gateways.keys()))):
+            gatekeys = self.gateways[device].keys()
 
-            print self.color(' {}\n'.format(gateway.upper()), char='-')
-            gatekeys = self.gateways[gateway].keys()
+            if self.gateways[device] != None:
 
-            for g in sorted(list(set(gatekeys))):
-                if self.gateways[gateway][g] != None:
-                    print self.color('{0:20} - {1:10}'.format(g.upper().replace('_', ' '), self.gateways[gateway][g]), char='  . ')
+                protocol = self.gateways[device]['protocol']
+                mgt_ipv4 = self.gateways[device]['ipv4']
 
-            if len(self.gateways.keys()) > 1:
-                print ''
+                if protocol.upper() == 'CDP':
+
+                    vlan = self.gateways[device]['cdp_vlan']
+                    port_id = self.gateways[device]['cdp_port_id']
+                    platform = self.gateways[device]['cdp_platform_name']
+                    protocol_version = self.gateways[device]['cdp_version']
+                    power = self.gateways[device]['power']
+                    software_version= self.gateways[device]['cdp_software_version']
+                    mgt_802 = ''
+                    address = ''
+
+                    if power != None:
+                        power = '{} ({}, {})'.format(power['cdp_power_mgt_id'], power['cdp_power_available'], power['cdp_power_max'])
+
+                    gateway_output = '| {0:30} | {1:18} | {2:8} | {3:16} | {4:30} | {5:1}'.format(device.strip(), mgt_ipv4, vlan, port_id, power, platform.split()[0].rstrip(','))
+                    print self.color(gateway_output, char='')
+
+                if protocol.upper() == 'LLDP':
+
+                    vlan = ''
+                    port_id = ''
+                    protocol_version = ''
+                    power = ''
+                    software_version = ''
+
+                    mgt_802 = self.gateways[device]['mgt_802']
+                    address = self.gateways[device]['address']
+                    platform = self.gateways[device]['sysinfo']
+
+                    if platform != None:
+                        platform = platform.split()[0]
+
+                    gateway_output = '| {0:30} | {1:18} | {2:8} | {3:16} | {4:30} | {5:1}'.format(device.strip(), mgt_ipv4, vlan, port_id, power, platform)
+                    print self.color(gateway_output, char='')
+
+                    if address != None:
+                        print ''
+                        print self.color('LLDP TR-41 Address: {}'.format(address), char=' . ')
 
         print ''
 
     def dns_output(self):
 
-        dns_title = '[ DNS Servers ]\n'
+        dns_title = '| DNS Name Servers |\n'
         print self.color(dns_title, char='')
 
-        for d in sorted(list(set(self.dns))):
+        for d in sort_ips(self.dns[0].split(',')):
 
-            print self.color(d)
+            print self.color(d.strip(), char=' . ')
 
         print ''
 
     def routers_output(self):
 
-        routers_title = '{0:18} {1:18} {2:1}'.format('[ Router ]','[Server ID]','[ Name Servers ]')
+        routers_title = '| {0:18} | {1:18} | {2:1}'.format('Router','Server ID',' DNS Servers')
+
+        print self.color('-' * len(routers_title), char='')
         print self.color(routers_title, char='')
+        print self.color('-' * len(routers_title), char='')
 
         for router in sorted(list(set(self.routers.keys()))):
 
@@ -209,37 +256,26 @@ class ReconOpsOutput:
             if type(name_servers) == 'list':
                 name_servers = ', '.join(name_servers)
 
-            router_output = '{0:18} {1:18} {2:1}'.format(router, server_id, name_servers)
+            router_output = '| {0:18} | {1:18} | {2:1}'.format(router, server_id, name_servers)
 
-            print router_output
-
-        print ''
-
-    def ports_output(self):
-
-        ports_title = '[ Ports ]\n'
-        print self.color(ports_title, char='')
-
-        for port in sorted(list(set(self.ports))):
-
-            print self.color(port)
+            print self.color(router_output, char='')
 
         print ''
 
     def fingerprints_output(self):
 
-        fingerprints_title = '[ Fingerprints ]\n'
+        fingerprints_title = '| Fingerprints |'
         print self.color(fingerprints_title, char='')
 
         for fingerprint in sorted(list(set(self.fprints))):
 
-            print self.color(fingerprint)
+            print self.color(fingerprint, char=' . ')
 
         print ''
 
     def summary_output(self):
 
-        summary_title = '[ Summary ]\n'
+        summary_title = '| Summary |\n'
         print self.color(summary_title, char='')
 
         print 'Hosts:        {}'.format(len(self.hosts.keys()))
