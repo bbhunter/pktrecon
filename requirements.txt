@@ -1,1 +1,3 @@
 scapy==2.4.0
+importlib
+more_itertools
