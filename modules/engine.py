@@ -167,7 +167,7 @@ class ReconOpsOutput:
                 mac = self.hosts[host]['mac']
                 os = self.hosts[host]['os']
                 nt_version = None
-                os_version = None
+                os_version = os
 
                 if os != None and not os.startswith('Microsoft'):
                     nt_version = os.split('(')[1].split(')')[0].strip()
