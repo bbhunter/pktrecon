@@ -52,36 +52,37 @@ def main():
 
     parser = ArgumentParser(description='pktrecon | Internal network segment reconnaissance using packets captured from broadcast and service discovery protocol traffic')
 
+    parser.add_argument('-i', '--interface', help='Interface to use for live packet capture')
     parser.add_argument('-p', '--pcap', help='Packet capture to read from')
 
     args = parser.parse_args()
 
+    iface = args.interface
     pcap = args.pcap
 
     pktpath = os.getcwd()
+
     pktmodules = index_module_names()
+    recon_keys = create_recon_keys()
 
     clist = []
     color = 'nocolor'
 
+
+    if iface:
+
+        print ColorOut('Starting passive sniffing on network interface: {}'.format(iface), char='. ').nocolor()
+        PktReconSniffer(iface).run()
+
     if pcap:
 
         loadfile = pcap
-        recon_keys = {'hosts': {},
-                      'fingerprints': [],
-                      'ports': [],
-                      'protocols': [],
-                      'gateways': {},
-                      'routers': {},
-                      'dns':[],
-                      'domains': []
-                      }
 
         print ColorOut('Loading PCAP file: {}...'.format(loadfile), char='. ').nocolor()
         pcap_buf = rdpcap(loadfile)
 
         print ColorOut('Performing packet reconnaissance...\n', char='. ').nocolor()
-        load_protocol_modules = LoadModules(pcap_buf, recon_keys, pktmodules, pktpath, color)
+        LoadModules(pcap_buf, recon_keys, pktmodules, pktpath, color)
 
 if __name__ == '__main__':
 
