@@ -6,6 +6,7 @@ import glob
 import random
 import struct
 import logging
+import engine
 
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 
