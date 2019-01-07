@@ -595,8 +595,5 @@ def pktrecon_console_output(rkeys, rpath, c):
     if domains != []:
         pktoutput.domains_output()
 
-    if ports != []:
-        pktoutput.ports_output()
-
     if protocols != []:
         pktoutput.protos_output()

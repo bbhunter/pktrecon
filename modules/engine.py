@@ -59,6 +59,7 @@ def pkt_bridge(p):
 def create_recon_keys():
 
     recon_keys = {'hosts': {},
+                  'servers': {'dc': [], 'backup_dc': [], 'sql': []},
                   'fingerprints': [],
                   'ports': [],
                   'protocols': [],
@@ -150,12 +151,13 @@ class ReconOpsOutput:
 
     def hostname_output(self):
 
-        host_title = '| {0:16} | {1:16} | {2:26} | {3:18} | {4:12} | {5:1}'.format('Host', 'IPv4', 'IPv6', 'MAC', 'Domain', 'Windows OS')
+        host_title = '| {0:16} | {1:16} | {2:26} | {3:18} | {4:12} | {5:20} | {6:1}'.format('Host', 'IPv4', 'IPv6', 'MAC', 'Domain', 'Server Type', 'Windows OS')
+
         print '-' * blessings.Terminal().width
         print self.color(host_title, char='')
         print '-' * blessings.Terminal().width
 
-
+        server_type = ''
         for host in sorted(self.hosts):
 
             ipv4 = self.hosts[host]['ipv4']
@@ -168,6 +170,7 @@ class ReconOpsOutput:
                 os = self.hosts[host]['os']
                 nt_version = None
                 os_version = os
+                serverlist =['domain_controller','backup_controller','sql_server']
 
                 if os != None and not os.startswith('Microsoft'):
                     nt_version = os.split('(')[1].split(')')[0].strip()
@@ -175,12 +178,15 @@ class ReconOpsOutput:
 
                 domain = self.hosts[host]['domain']
                 notes = self.hosts[host]['notes']
-#                server_types = self.hosts[host]['server_keys']
+                servers = []
+                server_types = self.hosts[host]['server_keys']
 
-                if notes == None:
-                    notes = ''
+                for server in server_types:
 
-                host_output = '| {0:16} | {1:16} | {2:26} | {3:18} | {4:12} | {5:1}'.format(host, ipv4, ipv6, mac, domain, os_version)
+                    if server_types[server] == '1' and server in serverlist:
+                        servers.append(server)
+
+                host_output = '| {0:16} | {1:16} | {2:26} | {3:18} | {4:12} | {5:20} | {6:1}'.format(host, ipv4, ipv6, mac, domain, ', '.join(servers), os_version)
 
                 print self.color(host_output, char='')
 
@@ -198,17 +204,6 @@ class ReconOpsOutput:
 
         print ''
 
-    def ports_output(self):
-
-        ports_title = '| Ports |\n'
-        print self.color(ports_title, char='')
-
-        for port in self.ports:
-
-            print self.color('{}'.format(port), char=' . ')
-
-        print ''
-
     def protos_output(self):
 
         protos_title = '| Protocols |\n'
@@ -219,6 +214,7 @@ class ReconOpsOutput:
             print self.color('{}'.format(proto), char=' . ')
 
         print ''
+
 
     def gateways_output(self):
 
@@ -358,7 +354,6 @@ class ReconOpsOutput:
         print 'Hosts:        {}'.format(len(self.hosts.keys()))
         print 'Domains:      {}'.format(len(self.domains))
         print 'Fingerprints: {}'.format(len(self.fprints))
-        print 'Ports:        {}'.format(len(self.ports))
         print 'Protocols:    {}'.format(len(self.protocols))
         print 'Gateways:     {}'.format(len(self.gateways.keys()))
         print 'Routers:      {}'.format(len(self.routers.keys()))
