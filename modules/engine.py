@@ -175,7 +175,7 @@ class ReconOpsOutput:
 
                 domain = self.hosts[host]['domain']
                 notes = self.hosts[host]['notes']
-                server_types = self.hosts[host]['server_keys']
+#                server_types = self.hosts[host]['server_keys']
 
                 if notes == None:
                     notes = ''
