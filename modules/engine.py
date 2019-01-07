@@ -5,8 +5,14 @@ import os
 import importlib
 import console
 import netaddr
+import logging
+import blessings
 
 from glob import glob
+
+logging.getLogger("scapy").setLevel(1)
+
+from scapy.all import *
 
 def sort_ips(iplist):
 
@@ -26,6 +32,44 @@ def index_module_names():
 
     return mlist
 
+class PktReconSniffer:
+
+    def __init__(self, interface):
+
+        self.interface = interface
+
+    def run(self):
+
+        sniff(iface=self.interface, prn=pkt_bridge, store=0)
+
+def pkt_bridge(p):
+
+    module_list = index_module_names()
+    recon_keys = create_recon_keys()
+
+    for mod in module_list:
+
+        i = importlib.import_module('modules.{}'.format(mod))
+        sniff_engine = getattr(i, '{}'.format(mod.upper()))
+
+        runkeys = sniff_engine(recon_keys, p).search()
+
+    print runkeys
+
+def create_recon_keys():
+
+    recon_keys = {'hosts': {},
+                  'fingerprints': [],
+                  'ports': [],
+                  'protocols': [],
+                  'gateways': {},
+                  'routers': {},
+                  'dns':[],
+                  'domains': []
+                  }
+
+    return recon_keys
+
 class RunModule:
 
     def __init__(self, data, keys, module):
@@ -38,8 +82,13 @@ class RunModule:
 
         i = importlib.import_module('modules.{}'.format(self.module))
         run_engine = getattr(i, '{}'.format(self.module.upper()))
+        sessions = self.data.sessions()
 
-        runkeys = run_engine(self.data, self.keys).search()
+        for session in sessions:
+            loaded_session = sessions[session]
+
+            for packet in loaded_session:
+                runkeys = run_engine(self.keys, packet).search()
 
         return runkeys
 
@@ -102,10 +151,10 @@ class ReconOpsOutput:
     def hostname_output(self):
 
         host_title = '| {0:16} | {1:16} | {2:16} | {3:18} | {4:12} | {5:1}'.format('Host', 'IPv4', 'IPv6', 'MAC', 'Domain', 'Windows OS')
-
-        print self.color('-' * len(host_title), char='')
+        print '-' * blessings.Terminal().width
         print self.color(host_title, char='')
-        print self.color('-' * len(host_title), char='')
+        print '-' * blessings.Terminal().width
+
 
         for host in sorted(self.hosts):
 
@@ -126,6 +175,7 @@ class ReconOpsOutput:
 
                 domain = self.hosts[host]['domain']
                 notes = self.hosts[host]['notes']
+                server_types = self.hosts[host]['server_keys']
 
                 if notes == None:
                     notes = ''
@@ -172,11 +222,11 @@ class ReconOpsOutput:
 
     def gateways_output(self):
 
-        gateways_title = '| {0:30} | {1:18} | {2:8} | {3:16} | {4:30} | {5:1}'.format('Device','MgtIPv4','VLAN','Port','Power','Platform')
+        gateways_title = '| {0:28} | {1:18} | {2:8} | {3:16} | {4:30} | {5:1}'.format('Device','MgtIPv4','VLAN','Port','Power','Platform')
 
-        print self.color('-' * len(gateways_title), char='')
+        print self.color('-' * (len(gateways_title) + (len(gateways_title) / 4)), char='')
         print self.color(gateways_title, char='')
-        print self.color('-' * len(gateways_title), char='')
+        print self.color('-' * (len(gateways_title) + (len(gateways_title) / 4)), char='')
 
         for device in sorted(list(set(self.gateways.keys()))):
             gatekeys = self.gateways[device].keys()
@@ -200,7 +250,7 @@ class ReconOpsOutput:
                     if power != None:
                         power = '{} ({}, {})'.format(power['cdp_power_mgt_id'], power['cdp_power_available'], power['cdp_power_max'])
 
-                    gateway_output = '| {0:30} | {1:18} | {2:8} | {3:16} | {4:30} | {5:1}'.format(device.strip(), mgt_ipv4, vlan, port_id, power, platform.split()[0].rstrip(','))
+                    gateway_output = '| {0:28} | {1:18} | {2:8} | {3:16} | {4:30} | {5:1}'.format(device.strip(), mgt_ipv4, vlan, port_id, power, platform.split()[0].rstrip(','))
                     print self.color(gateway_output, char='')
 
                 if protocol.upper() == 'LLDP':
@@ -218,7 +268,7 @@ class ReconOpsOutput:
                     if platform != None:
                         platform = platform.split()[0]
 
-                    gateway_output = '| {0:30} | {1:18} | {2:8} | {3:16} | {4:30} | {5:1}'.format(device.strip(), mgt_ipv4, vlan, port_id, power, platform)
+                    gateway_output = '| {0:28} | {1:18} | {2:8} | {3:16} | {4:30} | {5:1}'.format(device.strip(), mgt_ipv4, vlan, port_id, power, platform)
                     print self.color(gateway_output, char='')
 
                     if address != None:
@@ -264,12 +314,15 @@ class ReconOpsOutput:
 
     def fingerprints_output(self):
 
-        fingerprints_title = '| Fingerprints |'
+        fingerprints_title = '| {0:30}'.format('Fingerprint')
+        print '-' * (len(fingerprints_title) * 2)
         print self.color(fingerprints_title, char='')
+        print '-' * (len(fingerprints_title) * 2)
 
         for fingerprint in sorted(list(set(self.fprints))):
+            fprint_output = '| {0:30}'.format(fingerprint)
 
-            print self.color(fingerprint, char=' . ')
+            print self.color(fprint_output, char='')
 
         print ''
 

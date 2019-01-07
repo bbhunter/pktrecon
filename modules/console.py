@@ -365,24 +365,6 @@ def detect_interfaces():
 
     return sorted(list(set(iface_buf_list)))
 
-class PktReconSniffer:
-
-    def __init__(self, interface, keys):
-
-        self.interface = interface
-        self.keys = keys
-
-    def sniff(self):
-
-        sniff(iface=self.interface, prn=pkt_callback, store=0)
-
-def pkt_callback(pkt):
-
-    if pkt.getlayer(UDP):
-        raw_packet = list(str(pkt[UDP]))
-
-        return raw_packet
-
 def run_PktRecon_command(cmd, rkeys, rfile, rpath):
     '''Small wrapper function to make command calls to
        the API and console classes'''
@@ -607,8 +589,8 @@ def pktrecon_console_output(rkeys, rpath, c):
     if dns != []:
         pktoutput.dns_output()
 
-    if fingerprints != []:
-        pktoutput.fingerprints_output()
+#    if fingerprints != []:
+#        pktoutput.fingerprints_output()
 
     if domains != []:
         pktoutput.domains_output()
