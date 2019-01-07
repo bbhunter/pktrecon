@@ -41,6 +41,7 @@ class DHCPV4:
             boot_type = self.packet[BOOTP].op
             bootp_data = self.packet[DHCP].options
             broadcast_address = None
+            sid_keys = {}
             testkeys = {}
 
             for obj in bootp_data:
@@ -57,7 +58,7 @@ class DHCPV4:
 
                 ipv4 = self.packet[IP].src
                 notes = 'DHCPv4 Bootstrap Client'
-                testkeys.update({'mac': mac, 'domain': domain, 'ipv4': ipv4, 'ipv6': ipv6, 'os': os, 'notes': notes})
+                testkeys.update({'mac': mac, 'domain': domain, 'ipv4': ipv4, 'ipv6': ipv6, 'os': os, 'notes': notes, 'server_keys': sid_keys})
 
                 if 'hostname' in testkeys.keys() and testkeys['hostname'] not in self.keys['hosts'].keys() and testkeys['hostname'] != None:
                     self.keys['hosts'].update({hostname: testkeys})

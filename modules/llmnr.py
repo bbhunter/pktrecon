@@ -34,6 +34,7 @@ class LLMNR:
             notes = 'Potential remote segment host (LLMNR)'
             sport = self.packet[UDP].sport
             dport = self.packet[UDP].dport
+            sid_keys = {}
             protocol = 'LLMNR'
 
             qname = self.packet[LLMNRResponse].qd.qname
@@ -54,6 +55,6 @@ class LLMNR:
                 self.keys['domains'].append(domain)
 
             if rrname not in self.keys['hosts'].keys() and rrname != None:
-                self.keys['hosts'].update({'*{}'.format(rrname): {'ipv4': rdata, 'mac': mac, 'domain': 'Unknown', 'ipv6': ipv6, 'os': os, 'protocol': protocol}})
+                self.keys['hosts'].update({'*{}'.format(rrname): {'ipv4': rdata, 'mac': mac, 'domain': 'Unknown', 'ipv6': ipv6, 'os': os, 'protocol': protocol, 'server_keys': sid_keys}})
 
         return self.keys

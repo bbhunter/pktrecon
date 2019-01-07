@@ -52,7 +52,7 @@ class NBNS:
             os = None
             suffix_type = None
             notes = None
-
+            sid_keys = {}
             segment = '{}.0/24'.format('.'.join(ipv4.split('.')[0:3]))
             protocol = 'NBNS'
 
@@ -89,10 +89,9 @@ class NBNS:
 
             if hostname not in self.keys['hosts'].keys():
                 if hostname != None:
-                    self.keys['hosts'].update({hostname: {'mac': mac, 'ipv4': ipv4, 'ipv6': ipv6, 'domain': domain, 'lookup': question, 'suffix_type': suffix_type, 'os': os, 'protocol': protocol, 'notes': notes}})
+                    self.keys['hosts'].update({hostname: {'mac': mac, 'ipv4': ipv4, 'ipv6': ipv6, 'domain': domain, 'lookup': question, 'suffix_type': suffix_type, 'os': os, 'protocol': protocol, 'notes': notes, 'server_keys': sid_keys}})
 
             else:
-
                 if self.keys['hosts'][hostname]['os'] == None or self.keys['hosts'][hostname]['os'] == 'Unknown':
                     engine.UpdateReconKeys(self.keys, hostname, os=os).operating_system()
 
