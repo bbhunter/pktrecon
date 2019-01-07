@@ -39,7 +39,7 @@ class DHCPV6:
 
            if str(enterprisenum) == '311':
                enterprise = 'Microsoft'
-               notes = 'Microsoft Windows'
+               os = 'Microsoft Windows'
 
            if protocol not in self.keys['protocols']:
                 self.keys['protocols'].append(protocol)
