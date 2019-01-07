@@ -150,7 +150,7 @@ class ReconOpsOutput:
 
     def hostname_output(self):
 
-        host_title = '| {0:16} | {1:16} | {2:16} | {3:18} | {4:12} | {5:1}'.format('Host', 'IPv4', 'IPv6', 'MAC', 'Domain', 'Windows OS')
+        host_title = '| {0:16} | {1:16} | {2:26} | {3:18} | {4:12} | {5:1}'.format('Host', 'IPv4', 'IPv6', 'MAC', 'Domain', 'Windows OS')
         print '-' * blessings.Terminal().width
         print self.color(host_title, char='')
         print '-' * blessings.Terminal().width
@@ -180,7 +180,7 @@ class ReconOpsOutput:
                 if notes == None:
                     notes = ''
 
-                host_output = '| {0:16} | {1:16} | {2:16} | {3:18} | {4:12} | {5:1}'.format(host, ipv4, ipv6, mac, domain, os_version)
+                host_output = '| {0:16} | {1:16} | {2:26} | {3:18} | {4:12} | {5:1}'.format(host, ipv4, ipv6, mac, domain, os_version)
 
                 print self.color(host_output, char='')
 
@@ -224,9 +224,9 @@ class ReconOpsOutput:
 
         gateways_title = '| {0:28} | {1:18} | {2:8} | {3:16} | {4:30} | {5:1}'.format('Device','MgtIPv4','VLAN','Port','Power','Platform')
 
-        print self.color('-' * (len(gateways_title) + (len(gateways_title) / 4)), char='')
+        print self.color('-' * blessings.Terminal().width, char='')
         print self.color(gateways_title, char='')
-        print self.color('-' * (len(gateways_title) + (len(gateways_title) / 4)), char='')
+        print self.color('-' * blessings.Terminal().width, char='')
 
         for device in sorted(list(set(self.gateways.keys()))):
             gatekeys = self.gateways[device].keys()
@@ -290,23 +290,47 @@ class ReconOpsOutput:
 
     def routers_output(self):
 
-        routers_title = '| {0:18} | {1:18} | {2:1}'.format('Router','Server ID',' DNS Servers')
+        routers_title = '| {0:18} | {1:18} | {2:16} | {3:1}'.format('Router', 'Server ID', 'Domain', 'Name Servers')
 
-        print self.color('-' * len(routers_title), char='')
+        print self.color('-' * blessings.Terminal().width, char='')
         print self.color(routers_title, char='')
-        print self.color('-' * len(routers_title), char='')
+        print self.color('-' * blessings.Terminal().width, char='')
 
         for router in sorted(list(set(self.routers.keys()))):
 
             routerkeys = self.routers[router].keys()
-            router = self.routers[router]['router']
-            server_id = self.routers[router]['server_id']
-            name_servers = self.routers[router]['name_server']
+
+            if 'router' in routerkeys:
+                router = self.routers[router]['router']
+
+            else:
+                router = 'Unknown'
+
+
+            if 'server_id' in routerkeys:
+                server_id = self.routers[router]['server_id']
+
+            else:
+                server_id = 'Unknown'
+
+
+            if 'name_server' in routerkeys:
+                name_servers = self.routers[router]['name_server']
+
+            else:
+                name_servers = 'Unknown'
+
+
+            if 'domain' in routerkeys:
+                domain = self.routers[router]['domain']
+
+            else:
+                domain = 'Unknown'
 
             if type(name_servers) == 'list':
                 name_servers = ', '.join(name_servers)
 
-            router_output = '| {0:18} | {1:18} | {2:1}'.format(router, server_id, name_servers)
+            router_output = '| {0:18} | {1:18} | {2:16} | {3:1}'.format(router, server_id, domain, name_servers)
 
             print self.color(router_output, char='')
 
