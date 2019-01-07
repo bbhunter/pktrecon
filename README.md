@@ -75,6 +75,12 @@ correlation for captured packets is not yet completed. Live interface mode can b
 
     python ./pktrecon.py --interface <interface_name>
 
+## support
+
+pktrecon is built to run on Kali Linux, and was most recently tested on Kali Linux 2019.1
+However, most Debian/Ubuntu flavors should be able to run it without any significant issues, although
+this has not been reliably tested.
+
 ## python3
 
 Because python2 will be deprecated at the end of 2019, pktrecon will slowly but surely be ported to Python3
