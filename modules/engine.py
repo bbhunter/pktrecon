@@ -151,7 +151,7 @@ class ReconOpsOutput:
 
     def hostname_output(self):
 
-        host_title = '| {0:16} | {1:16} | {2:26} | {3:18} | {4:12} | {5:20} | {6:1}'.format('Host', 'IPv4', 'IPv6', 'MAC', 'Domain', 'Server Type', 'Windows OS')
+        host_title = '| {0:16} | {1:16} | {2:26} | {3:18} | {4:12} | {5:10} | {6:1}'.format('Host', 'IPv4', 'IPv6', 'MAC', 'Domain', 'Server Type', 'Windows OS')
 
         print '-' * blessings.Terminal().width
         print self.color(host_title, char='')
@@ -170,7 +170,7 @@ class ReconOpsOutput:
                 os = self.hosts[host]['os']
                 nt_version = None
                 os_version = os
-                serverlist =['domain_controller','backup_controller','sql_server']
+                serverlist = {'domain_controller': 'DC', 'backup_controller': 'Backup DC', 'sql_server': 'SQL'}
 
                 if os != None and not os.startswith('Microsoft'):
                     nt_version = os.split('(')[1].split(')')[0].strip()
@@ -183,10 +183,10 @@ class ReconOpsOutput:
 
                 for server in server_types:
 
-                    if server_types[server] == '1' and server in serverlist:
-                        servers.append(server)
+                    if server_types[server] == '1' and server in serverlist.keys():
+                        servers.append(serverlist[server])
 
-                host_output = '| {0:16} | {1:16} | {2:26} | {3:18} | {4:12} | {5:20} | {6:1}'.format(host, ipv4, ipv6, mac, domain, ', '.join(servers), os_version)
+                host_output = '| {0:16} | {1:16} | {2:26} | {3:18} | {4:12} | {5:10} | {6:1}'.format(host, ipv4, ipv6, mac, domain, ', '.join(servers).strip(), os_version)
 
                 print self.color(host_output, char='')
 
@@ -197,10 +197,11 @@ class ReconOpsOutput:
 
         domains_title = '| Domains |\n'
         print self.color(domains_title, char='')
+        if self.domains != []:
 
-        for domain in self.domains:
-            if domain != None:
-                print self.color('| {}'.format(domain), char='')
+            for domain in self.domains:
+                if domain != None:
+                    print self.color('{}'.format(domain), char=' . ')
 
         print ''
 
