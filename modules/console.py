@@ -572,8 +572,9 @@ def pktrecon_console_output(rkeys, rpath, c):
     gateways = rkeys['gateways']
     dns = rkeys['dns']
     routers = rkeys['routers']
+    usernames = rkeys['usernames']
 
-    pktoutput = engine.ReconOpsOutput(c, hosts=hosts, ports=ports, domains=domains, protocols=protocols, dns=dns, fprints=fingerprints, gateways=gateways, routers=routers)
+    pktoutput = engine.ReconOpsOutput(c, hosts=hosts, ports=ports, domains=domains, protocols=protocols, dns=dns, fprints=fingerprints, gateways=gateways, routers=routers, users=usernames)
 
     pktoutput.summary_output()
 
@@ -588,6 +589,9 @@ def pktrecon_console_output(rkeys, rpath, c):
 
     if dns != []:
         pktoutput.dns_output()
+
+    if usernames != []:
+        pktoutput.username_output()
 
     if fingerprints != []:
         pktoutput.fingerprints_output()

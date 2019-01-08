@@ -21,6 +21,7 @@ before resorting to more active methods.
 The protocols and services utilized by pktrecon include:
 
   - Cisco Discovery Protocol               (CDP)
+  - Dynamic Trunking Protocol              (DTP)
   - Link Local Discovery Protocol          (LLDP)
   - NetBIOS Name Service                   (NBNS)
   - Windows Browser Datagrams              (WINBROWSER)
@@ -37,6 +38,7 @@ Examples of data which pktrecon can be potentially obtained from a packet captur
 - Domain names
 - IPv4 and IPv6 addresses
 - Windows operating system fingerprints / NT version numbers / Vendor class ID's
+- Domain account usernames
 - Server type identification (domain controllers, backup domain controllers, sql servers, and more)
 - SMB server fingerprints
 - DNS name server IPv4 addresses
@@ -131,3 +133,4 @@ Here are just a few of the things currently in progress:
 - Project screenshots and extended documentation / wiki
 - Server type identification
 - Cross-network segment host data correlation
+- SMB_LOGON broadcast username collection

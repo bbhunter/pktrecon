@@ -60,6 +60,7 @@ def create_recon_keys():
 
     recon_keys = {'hosts': {},
                   'servers': {'dc': [], 'backup_dc': [], 'sql': []},
+                  'usernames': [],
                   'fingerprints': [],
                   'ports': [],
                   'protocols': [],
@@ -135,7 +136,7 @@ class UpdateReconKeys:
 
 class ReconOpsOutput:
 
-    def __init__(self, tcolor, hosts=None, ports=None, domains=None, protocols=None, dns=None, creds=None, fprints=None, attacks=None, gateways=None, routers=None):
+    def __init__(self, tcolor, hosts=None, ports=None, domains=None, protocols=None, dns=None, creds=None, fprints=None, attacks=None, gateways=None, routers=None, users=None):
 
         self.tcolor = tcolor
         self.hosts = hosts
@@ -146,7 +147,7 @@ class ReconOpsOutput:
         self.fprints = fprints
         self.gateways = gateways
         self.routers = routers
-
+        self.usernames = users
         self.color = getattr(self, self.tcolor)
 
     def hostname_output(self):
@@ -348,6 +349,21 @@ class ReconOpsOutput:
             fprint_output = '| {0:30}'.format(fingerprint)
 
             print self.color(fprint_output, char='')
+
+        print ''
+
+    def username_output(self):
+
+        usernames_title = '| {0:30}'.format('Usernames')
+
+        print '-' * blessings.Terminal().width
+        print self.color(usernames_title, char='')
+        print '-' * blessings.Terminal().width
+
+        for user in sorted(list(set(self.usernames))):
+            username_output = '| {0:30}'.format(user)
+
+            print self.color(username_output, char='')
 
         print ''
 

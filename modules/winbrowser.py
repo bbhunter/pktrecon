@@ -22,6 +22,17 @@ class WINBROWSER:
 
     def search(self):
 
+        username = None
+
+        if self.packet.getlayer(UDP) and self.packet.getlayer(IP) and self.packet[IP].dst == '10.20.49.255' and self.packet[UDP].sport == 138 and self.packet[UDP].dport == 138:
+#            self.packet.show()
+            raw_packet = list(str(self.packet[Raw]))
+            if '\x12' in raw_packet:
+                logon_index = raw_packet.index('\x12')
+                check_logon = raw_packet[logon_index + 1]
+                if check_logon == '\x00':
+                    username = ''.join(raw_packet[logon_index + 4 + 10: logon_index + 4 + 10 + 26])
+
         if self.packet.getlayer(UDP) and self.packet.getlayer(NBTDatagram) and self.packet[UDP].sport == 138 and self.packet[UDP].dport == 138:
 
             mac = self.packet[Ether].src
@@ -130,6 +141,9 @@ class WINBROWSER:
                 server_type_values = server_type_values_1 + server_type_values_2 + server_type_values_3
 
                 sid_keys = dict(zip(server_type_keys,server_type_values))
+
+            if username not in self.keys['usernames'] and username != None:
+                self.keys['usernames'].append(username)
 
             if 'MSBROWSE' in domain:
                 domain = 'MSBROWSE'
