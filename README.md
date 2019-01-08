@@ -67,7 +67,43 @@ Once the packet capture is completed, pktrecon can be used to perform reconnaiss
     python ./pktrecon.py --pcap <pcapfile>.pcap
 
 There is a folder included with the pktrecon project containing multiple sample packet captures from Wireshark
-to test pktrecon with.
+to test pktrecon with. Below is a usage example with the smb-browser-elections.pcapng capture:
+
+    . Loading PCAP file: wireshark-sample-pcaps/smb-browser-elections.pcapng...
+    . Performing packet reconnaissance...
+
+      . NBNS
+      . LLDP
+      . DHCPV4
+      . WINBROWSER
+      . DHCPV6
+      . CDP
+      . LLMNR
+
+    | Summary |
+
+    Hosts:        2
+    Domains:      1
+    Fingerprints: 1
+    Protocols:    2
+    Gateways:     0
+    Routers:      0
+    DNS Servers:  0
+
+    -----------------------------------------------------------------------------------------------------------------------------------
+    | Host             | IPv4             | IPv6                       | MAC                | Domain       | Server Type | Windows OS
+    -----------------------------------------------------------------------------------------------------------------------------------
+    | OBSIDIAN         | 192.168.123.1    | None                       | 00:0e:a6:84:19:c1  | SYNERITY     |            | Windows XP
+    | TUMBLEWEED       | 192.168.123.2    | None                       | 00:0c:6e:74:73:f0  | MSBROWSE     |            | Windows XP
+
+    | Domains |
+
+     . SYNERITY
+
+    | Protocols |
+
+     . NBNS
+     . Windows Browser Datagram
 
 Performing packet captures using a live network interface is currently being implemented into pktrecon.
 Currently, pktrecon is capable of capturing data on a live network interface. However, the output and data
