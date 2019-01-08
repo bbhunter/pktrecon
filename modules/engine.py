@@ -190,6 +190,7 @@ class ReconOpsOutput:
 
                 print self.color(host_output, char='')
 
+        print '-' * blessings.Terminal().width
         print ''
 
 
@@ -272,6 +273,7 @@ class ReconOpsOutput:
                         print ''
                         print self.color('LLDP TR-41 Address: {}'.format(address), char=' . ')
 
+        print '-' * blessings.Terminal().width
         print ''
 
     def dns_output(self):
@@ -331,14 +333,16 @@ class ReconOpsOutput:
 
             print self.color(router_output, char='')
 
+        print '-' * blessings.Terminal().width
         print ''
 
     def fingerprints_output(self):
 
-        fingerprints_title = '| {0:30}'.format('Fingerprint')
-        print '-' * (len(fingerprints_title) * 2)
+        fingerprints_title = '| {0:30}'.format('Fingerprints')
+
+        print '-' * blessings.Terminal().width
         print self.color(fingerprints_title, char='')
-        print '-' * (len(fingerprints_title) * 2)
+        print '-' * blessings.Terminal().width
 
         for fingerprint in sorted(list(set(self.fprints))):
             fprint_output = '| {0:30}'.format(fingerprint)

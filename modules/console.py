@@ -589,8 +589,8 @@ def pktrecon_console_output(rkeys, rpath, c):
     if dns != []:
         pktoutput.dns_output()
 
-#    if fingerprints != []:
-#        pktoutput.fingerprints_output()
+    if fingerprints != []:
+        pktoutput.fingerprints_output()
 
     if domains != []:
         pktoutput.domains_output()
