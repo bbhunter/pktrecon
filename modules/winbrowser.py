@@ -23,15 +23,19 @@ class WINBROWSER:
     def search(self):
 
         username = None
+        broadcast = None
 
-        if self.packet.getlayer(UDP) and self.packet.getlayer(IP) and self.packet[IP].dst == '10.20.49.255' and self.packet[UDP].sport == 138 and self.packet[UDP].dport == 138:
-#            self.packet.show()
-            raw_packet = list(str(self.packet[Raw]))
-            if '\x12' in raw_packet:
-                logon_index = raw_packet.index('\x12')
-                check_logon = raw_packet[logon_index + 1]
-                if check_logon == '\x00':
-                    username = ''.join(raw_packet[logon_index + 4 + 10: logon_index + 4 + 10 + 26])
+        if self.packet.getlayer(IP):
+            broadcast = '{}.255'.format('.'.join(self.packet[IP].src.split('.')[0:3]))
+
+        if broadcast and self.packet.getlayer(UDP) and self.packet[IP].dst == broadcast and self.packet[UDP].sport == 138 and self.packet[UDP].dport == 138:
+
+                raw_packet = list(str(self.packet[Raw]))
+                if '\x12' in raw_packet:
+                    logon_index = raw_packet.index('\x12')
+                    check_logon = raw_packet[logon_index + 1]
+                    if check_logon == '\x00':
+                        username = ''.join(raw_packet[logon_index + 4 + 10: logon_index + 4 + 10 + 26])
 
         if self.packet.getlayer(UDP) and self.packet.getlayer(NBTDatagram) and self.packet[UDP].sport == 138 and self.packet[UDP].dport == 138:
 
