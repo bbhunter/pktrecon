@@ -179,17 +179,18 @@ class ReconOpsOutput:
 
                 domain = self.hosts[host]['domain']
                 notes = self.hosts[host]['notes']
-                servers = []
-                server_types = self.hosts[host]['server_keys']
+                if 'server_keys' in self.hosts[host].keys():
+                    servers = []
+                    server_types = self.hosts[host]['server_keys']
 
-                for server in server_types:
+                    for server in server_types:
 
-                    if server_types[server] == '1' and server in serverlist.keys():
-                        servers.append(serverlist[server])
+                        if server_types[server] == '1' and server in serverlist.keys():
+                            servers.append(serverlist[server])
 
-                host_output = '| {0:16} | {1:16} | {2:26} | {3:18} | {4:12} | {5:10} | {6:1}'.format(host, ipv4, ipv6, mac, domain, ', '.join(servers).strip(), os_version)
+                    host_output = '| {0:16} | {1:16} | {2:26} | {3:18} | {4:12} | {5:10} | {6:1}'.format(host, ipv4, ipv6, mac, domain, ','.join(servers).strip(), os_version)
 
-                print self.color(host_output, char='')
+                    print self.color(host_output, char='')
 
         print '-' * blessings.Terminal().width
         print ''
@@ -197,25 +198,34 @@ class ReconOpsOutput:
 
     def domains_output(self):
 
-        domains_title = '| Domains |\n'
+        domains_title = '| Domains'
+
+        print '-' * blessings.Terminal().width
         print self.color(domains_title, char='')
+        print '-' * blessings.Terminal().width
+
         if self.domains != []:
 
             for domain in self.domains:
                 if domain != None:
                     print self.color('{}'.format(domain), char=' . ')
 
+        print self.color('-' * blessings.Terminal().width, char='')
         print ''
 
     def protos_output(self):
 
-        protos_title = '| Protocols |\n'
+        protos_title = '| Protocols'
+
+        print '-' * blessings.Terminal().width
         print self.color(protos_title, char='')
+        print '-' * blessings.Terminal().width
 
         for proto in self.protocols:
 
             print self.color('{}'.format(proto), char=' . ')
 
+        print self.color('-' * blessings.Terminal().width, char='')
         print ''
 
 
@@ -279,13 +289,17 @@ class ReconOpsOutput:
 
     def dns_output(self):
 
-        dns_title = '| DNS Name Servers |\n'
+        dns_title = '| DNS Name Servers'
+
+        print '-' * blessings.Terminal().width
         print self.color(dns_title, char='')
+        print '-' * blessings.Terminal().width
 
         for d in sort_ips(self.dns[0].split(',')):
 
             print self.color(d.strip(), char=' . ')
 
+        print '-' * blessings.Terminal().width
         print ''
 
     def routers_output(self):
@@ -350,6 +364,7 @@ class ReconOpsOutput:
 
             print self.color(fprint_output, char='')
 
+        print '-' * blessings.Terminal().width
         print ''
 
     def username_output(self):
@@ -365,6 +380,7 @@ class ReconOpsOutput:
 
             print self.color(username_output, char='')
 
+        print '-' * blessings.Terminal().width
         print ''
 
     def summary_output(self):
