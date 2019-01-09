@@ -29,7 +29,7 @@ The protocols and services utilized by pktrecon include:
   - Dynamic Host Configuration Protocol v4 (DHCPv4)
   - Dynamic Host Configuration Protocol v6 (DHCPv6)
 
-## recon data
+## target data
 
 Examples of data which pktrecon can be potentially obtained from a packet capture include:
 
@@ -133,4 +133,9 @@ Here are just a few of the things currently in progress:
 - Project screenshots and extended documentation / wiki
 - Server type identification
 - Cross-network segment host data correlation
-- SMB_LOGON broadcast username collection
+- SMB_LOGON broadcast username/hostname collection
+
+## current issues
+
+- Linux hosts can be misidentified as Windows due to Linux Samba Windows NT versions
+
