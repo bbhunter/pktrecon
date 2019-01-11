@@ -52,9 +52,7 @@ def pkt_bridge(p):
         i = importlib.import_module('modules.{}'.format(mod))
         sniff_engine = getattr(i, '{}'.format(mod.upper()))
 
-        runkeys = sniff_engine(recon_keys, p).search()
-
-    print runkeys
+        sniff_engine(recon_keys, p).search()
 
 def create_recon_keys():
 
@@ -110,7 +108,6 @@ class LoadModules:
             self.keys = RunModule(self.data, self.keys, module).run()
 
         print ''
-
         console.pktrecon_console_output(self.keys, self.rpath, self.c)
 
 class UpdateReconKeys:
@@ -152,33 +149,45 @@ class ReconOpsOutput:
 
     def hostname_output(self):
 
-        host_title = '| {0:16} | {1:16} | {2:26} | {3:18} | {4:12} | {5:10} | {6:1}'.format('Host', 'IPv4', 'IPv6', 'MAC', 'Domain', 'Server Type', 'Windows OS')
+        host_title = '| {0:16} | {1:16} | {2:20} | {3:18} | {4:14} | {5:20} | {6:1}'.format('Host', 'IPv4', 'IPv6', 'MAC', 'Domain', 'Server Type', 'Windows OS (Server Fingerprint)')
 
         print '-' * blessings.Terminal().width
         print self.color(host_title, char='')
         print '-' * blessings.Terminal().width
 
         server_type = ''
+
         for host in sorted(self.hosts):
 
             ipv4 = self.hosts[host]['ipv4']
             ipv6 = self.hosts[host]['ipv6']
             mac = self.hosts[host]['mac']
 
-            if host != None and ipv4 != '0.0.0.0' and '*' not in host:
+            if host != None and '*' not in host:
+
+                if 'fqdn' in self.hosts[host].keys():
+                    print self.hosts[host]['fqdn']
 
                 mac = self.hosts[host]['mac']
                 os = self.hosts[host]['os']
                 nt_version = None
                 os_version = os
-                serverlist = {'domain_controller': 'DC', 'backup_controller': 'Backup DC', 'sql_server': 'SQL'}
+                serverlist = {'domain_controller': 'DC', 'backup_controller': 'Backup DC', 'sql_server': 'SQL', 'print': 'Printer'}
+                host_comment = None
+
+                if 'comment' in self.hosts[host].keys():
+                    host_comment = self.hosts[host]['comment']
 
                 if os != None and not os.startswith('Microsoft'):
                     nt_version = os.split('(')[1].split(')')[0].strip()
                     os_version = os.split('(')[0].strip()
 
+                if host_comment != None and list(host_comment)[0] != '\x00':
+                    os_version += ' ({})'.format(host_comment.capitalize())
+
                 domain = self.hosts[host]['domain']
                 notes = self.hosts[host]['notes']
+
                 if 'server_keys' in self.hosts[host].keys():
                     servers = []
                     server_types = self.hosts[host]['server_keys']
@@ -188,7 +197,7 @@ class ReconOpsOutput:
                         if server_types[server] == '1' and server in serverlist.keys():
                             servers.append(serverlist[server])
 
-                    host_output = '| {0:16} | {1:16} | {2:26} | {3:18} | {4:12} | {5:10} | {6:1}'.format(host, ipv4, ipv6, mac, domain, ','.join(servers).strip(), os_version)
+                    host_output = '| {0:16} | {1:16} | {2:20} | {3:18} | {4:14} | {5:20} | {6:1}'.format(host.upper(), ipv4, ipv6, mac, domain, ','.join(servers).strip(), os_version)
 
                     print self.color(host_output, char='')
 
@@ -208,7 +217,7 @@ class ReconOpsOutput:
 
             for domain in self.domains:
                 if domain != None:
-                    print self.color('{}'.format(domain), char=' . ')
+                    print self.color('{}'.format(domain), char='| ')
 
         print self.color('-' * blessings.Terminal().width, char='')
         print ''
@@ -223,7 +232,7 @@ class ReconOpsOutput:
 
         for proto in self.protocols:
 
-            print self.color('{}'.format(proto), char=' . ')
+            print self.color('{}'.format(proto), char='| ')
 
         print self.color('-' * blessings.Terminal().width, char='')
         print ''
@@ -231,7 +240,7 @@ class ReconOpsOutput:
 
     def gateways_output(self):
 
-        gateways_title = '| {0:28} | {1:18} | {2:8} | {3:16} | {4:30} | {5:1}'.format('Device','MgtIPv4','VLAN','Port','Power','Platform')
+        gateways_title = '| {0:28} | {1:18} | {2:10} | {3:14} | {4:44} | {5:1}'.format('Device', 'MgtIPv4', 'VLAN', 'Port', 'Platform', 'Power')
 
         print self.color('-' * blessings.Terminal().width, char='')
         print self.color(gateways_title, char='')
@@ -249,7 +258,7 @@ class ReconOpsOutput:
 
                     vlan = self.gateways[device]['cdp_vlan']
                     port_id = self.gateways[device]['cdp_port_id']
-                    platform = self.gateways[device]['cdp_platform_name']
+                    platform = self.gateways[device]['cdp_platform_name'].split(',')[0]
                     protocol_version = self.gateways[device]['cdp_version']
                     power = self.gateways[device]['power']
                     software_version= self.gateways[device]['cdp_software_version']
@@ -259,26 +268,24 @@ class ReconOpsOutput:
                     if power != None:
                         power = '{} ({}, {})'.format(power['cdp_power_mgt_id'], power['cdp_power_available'], power['cdp_power_max'])
 
-                    gateway_output = '| {0:28} | {1:18} | {2:8} | {3:16} | {4:30} | {5:1}'.format(device.strip(), mgt_ipv4, vlan, port_id, power, platform.split()[0].rstrip(','))
-                    print self.color(gateway_output, char='')
+                    cdp_output = '| {0:28} | {1:18} | {2:10} | {3:14} | {4:44} | {5:1}'.format(device, mgt_ipv4, vlan, port_id, platform, power)
+
+                    print self.color(cdp_output, char='')
 
                 if protocol.upper() == 'LLDP':
 
-                    vlan = ''
-                    port_id = ''
                     protocol_version = ''
-                    power = ''
-                    software_version = ''
+                    power = None
 
+                    port_id = self.gateways[device]['lldp_port_id']
                     mgt_802 = self.gateways[device]['mgt_802']
+                    vlan = self.gateways[device]['lldp_vlan']
                     address = self.gateways[device]['address']
-                    platform = self.gateways[device]['sysinfo']
+                    platform = self.gateways[device]['sysinfo'].split(',')[0]
 
-                    if platform != None:
-                        platform = platform.split()[0]
+                    lldp_output = '| {0:28} | {1:18} | {2:10} | {3:14} | {4:44} | {5:1}'.format(device, mgt_ipv4, vlan, port_id, platform, power)
 
-                    gateway_output = '| {0:28} | {1:18} | {2:8} | {3:16} | {4:30} | {5:1}'.format(device.strip(), mgt_ipv4, vlan, port_id, power, platform)
-                    print self.color(gateway_output, char='')
+                    print self.color(lldp_output, char='')
 
                     if address != None:
                         print ''
@@ -297,17 +304,17 @@ class ReconOpsOutput:
 
         for d in sort_ips(self.dns[0].split(',')):
 
-            print self.color(d.strip(), char=' . ')
+            print self.color(d.strip(), char='| ')
 
         print '-' * blessings.Terminal().width
         print ''
 
     def routers_output(self):
 
-        routers_title = '| {0:18} | {1:18} | {2:16} | {3:1}'.format('Router', 'Server ID', 'Domain', 'Name Servers')
+        routers_title = '{0:18} | {1:18} | {2:16} | {3:20} | {4:1}'.format('Router', 'Server ID', 'Domain', 'Client ID', 'Name Servers')
 
         print self.color('-' * blessings.Terminal().width, char='')
-        print self.color(routers_title, char='')
+        print self.color(routers_title, char='| ')
         print self.color('-' * blessings.Terminal().width, char='')
 
         for router in sorted(list(set(self.routers.keys()))):
@@ -334,6 +341,11 @@ class ReconOpsOutput:
             else:
                 name_servers = 'Unknown'
 
+            if 'client_id' in routerkeys:
+                client_id = self.routers[router]['client_id']
+
+            else:
+                client_id = 'Unknown'
 
             if 'domain' in routerkeys:
                 domain = self.routers[router]['domain']
@@ -342,11 +354,14 @@ class ReconOpsOutput:
                 domain = 'Unknown'
 
             if type(name_servers) == 'list':
-                name_servers = ', '.join(name_servers)
+                name_servers = str(','.join(name_servers)).strip()
 
-            router_output = '| {0:18} | {1:18} | {2:16} | {3:1}'.format(router, server_id, domain, name_servers)
+            else:
+                name_servers = name_servers
 
-            print self.color(router_output, char='')
+            router_output = '{0:18} | {1:18} | {2:16} | {3:20} | {4:1}'.format(router, server_id, domain, client_id, name_servers)
+
+            print self.color(router_output, char='| ')
 
         print '-' * blessings.Terminal().width
         print ''
@@ -360,25 +375,37 @@ class ReconOpsOutput:
         print '-' * blessings.Terminal().width
 
         for fingerprint in sorted(list(set(self.fprints))):
-            fprint_output = '| {0:30}'.format(fingerprint)
+            fprint_output = '{0:30}'.format(fingerprint)
 
-            print self.color(fprint_output, char='')
+            print self.color(fprint_output, char='| ')
 
         print '-' * blessings.Terminal().width
         print ''
 
     def username_output(self):
 
-        usernames_title = '| {0:30}'.format('Usernames')
+        if len(self.usernames) > 0:
+            usernames_title = '| {0:16} | {1:10} | {2:16} | {3:1}'.format('Username', 'Host', 'Domain', 'Win2k Format')
 
-        print '-' * blessings.Terminal().width
-        print self.color(usernames_title, char='')
-        print '-' * blessings.Terminal().width
+            print '-' * blessings.Terminal().width
+            print self.color(usernames_title, char='')
+            print '-' * blessings.Terminal().width
 
-        for user in sorted(list(set(self.usernames))):
-            username_output = '| {0:30}'.format(user)
+            for userpair in self.usernames:
 
-            print self.color(username_output, char='')
+                for username in userpair.keys():
+
+                    hostname = userpair[username]
+                    domain = None
+                    win2k = None
+
+                    if hostname in self.hosts.keys():
+                        domain = self.hosts[hostname]['domain']
+                        win2k = '{}\{}'.format(domain, username)
+
+                    username_output = '| {0:16} | {1:10} | {2:16} | {3:1}'.format(username, hostname, domain, win2k)
+
+                    print self.color(username_output, char='')
 
         print '-' * blessings.Terminal().width
         print ''

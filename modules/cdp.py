@@ -23,7 +23,7 @@ class CDP:
 
     def search(self):
 
-        if self.packet.getlayer(Dot3) and self.packet[Dot3].dst == '01:00:0c:cc:cc:cc':
+        if self.packet.getlayer(Dot3) and self.packet[Dot3].dst == '01:00:0c:cc:cc:cc' and hex(self.packet[SNAP].code) == '0x2000':
 
             raw_packet = list(str(self.packet[Raw]))
             mac = self.packet[Dot3].src
@@ -65,7 +65,7 @@ class CDP:
 
             cdp_port_id_type = str(''.join(raw_packet[(13 + (cdp_device_id_length - 4)) + 12:(13 + (cdp_device_id_length - 4)) + 14]).encode('hex'))
             cdp_port_id_length = int(''.join(raw_packet[(13 + (cdp_device_id_length - 4)) + 14:(13 + (cdp_device_id_length - 4)) + 16]).encode('hex'), 16)
-            cdp_port_id = str(''.join(raw_packet[(13 + (cdp_device_id_length - 4)) + 16:(13 + (cdp_device_id_length - 4)) + (16 - 4) + cdp_port_id_length])).strip()
+            cdp_port_id = ''.join(list(''.join(raw_packet).split('\x00\x03')[1])[2:]).rsplit('\x00')[0].replace('\x00', '')
 
             cdp_platform_list = raw_packet[(17 + (cdp_device_id_length - 4)) + 19 + 8 + 5:(17 + (cdp_device_id_length - 4)) + 19 + 8 + 5 + 14]
 
@@ -78,10 +78,10 @@ class CDP:
 
             cdp_platform_type = ''.join(cdp_platform_list[0:2]).encode('hex')
             cdp_platform_length = int(''.join(list(cdp_platform_list[2:4])).encode('hex'), 16)
-            cdp_platform_name = str(''.join(cdp_platform_list[4:cdp_platform_length]))
+            cdp_platform_name = ''.join(cdp_platform_list[4:cdp_platform_length]).replace('\x00', '')
 
             cdp_vlan_list = raw_packet[(17 + (cdp_device_id_length - 4)) + 19 + 8 + 5 + 14:(17 + (cdp_device_id_length - 4)) + 19 + 8 + 5 + 14 + 6]
-            cdp_vlan = str(int(''.join(cdp_vlan_list[5:6]).encode('hex'), 16)).strip()
+            cdp_vlan = str(int(''.join(cdp_vlan_list[5:6]).encode('hex'), 16)).replace('\x00', '')
 
             cdp_powerlist = raw_packet[(17 + (cdp_device_id_length - 4)) + 19 + 8 + 5 + 14 + 6:]
             cdp_power_type = ''.join(cdp_powerlist[0:2]).encode('hex')
@@ -105,7 +105,7 @@ class CDP:
                 self.keys['fingerprints'].append(cdp_platform_name)
 
             if hostname not in self.keys['gateways'].keys() and hostname != None:
-                self.keys['gateways'].update({hostname:{'ipv4': ipv4, 'ipv6': ipv6, 'domain': domain, 'protocol': protocol, 'cdp_version': cdp_version, 'cdp_port_id': cdp_port_id, 'cdp_ttl': cdp_ttl, 'cdp_checksum': cdp_checksum, 'cdp_software_version': 'v{}'.format(cdp_software_version), 'cdp_platform_name': cdp_platform_name, 'cdp_vlan': cdp_vlan, 'notes': notes, 'power': cdp_power}})
+                self.keys['gateways'].update({hostname:{'ipv4': ipv4, 'ipv6': ipv6, 'domain': domain, 'protocol': protocol, 'cdp_version': cdp_version, 'cdp_port_id': cdp_port_id, 'cdp_ttl': cdp_ttl, 'cdp_checksum': cdp_checksum, 'cdp_software_version': 'v{}'.format(cdp_software_version), 'cdp_platform_name': cdp_platform_name, 'cdp_vlan': cdp_vlan, 'notes': notes, 'power': cdp_power, 'cdp_vlan': cdp_vlan}})
 
 
         return self.keys

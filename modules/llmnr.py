@@ -51,7 +51,7 @@ class LLMNR:
             if protocol not in self.keys['protocols']:
                 self.keys['protocols'].append(protocol)
 
-            if domain not in self.keys['domains']:
+            if domain not in self.keys['domains'] and domain not in self.keys['hosts'].keys():
                 self.keys['domains'].append(domain)
 
             if rrname not in self.keys['hosts'].keys() and rrname != None:

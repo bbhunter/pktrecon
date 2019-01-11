@@ -41,10 +41,12 @@ class LLDP:
             dns = None
             router = None
             notes = None
-
+            lldp_vlan = None
             # Get Chassis ID
             chassis_id = ''
             chassis_id_bytes = list(str(self.packet))[17:23]
+            lldp_port_id_length = int(list(str(self.packet))[(23 + 1)].encode('hex'), 16)
+            lldp_port_id = ''.join(list(str(self.packet))[(23 + 3):(23 + 2 + lldp_port_id_length)]).replace('\x00', '')
 
             for chassis_obj in chassis_id_bytes:
                 chassis_byte = str(chassis_obj.encode('hex'))
@@ -69,10 +71,7 @@ class LLDP:
                 system_description = str(''.join(system_description_list).rsplit('\x0e')[0].rsplit('\x08')[0]).strip()
 
 
-            # Get LLDP Port ID
-            # Get LLDP VLAN
             # Get LLDP Power
-
 
             if '\x0e' in raw_packet:
             # Get LLDP Management Address
@@ -124,7 +123,6 @@ class LLDP:
                         #print location_identification
 
                         extended_power = teledata_list[3]
-                        #print extended_power
 
                         country = location_identification[8:10]
                         state = location_identification[12:14]
@@ -134,6 +132,20 @@ class LLDP:
                         unit = location_identification[-3:]
 
                         address = '{} {} {} - {}, {} - {}'.format(number, street, unit, city, state, country)
+
+                    else:
+                        for tdata in teledata_list:
+
+                            if list(tdata)[0] == '\x06':
+                                t_type = list(tdata)[4]
+                                if t_type == '\x01':
+                                    lldp_vlan = str(int(''.join(list(tdata)[5:7]).encode('hex'), 16)).strip()
+
+                                if t_type == '\x02':
+                                    pass
+
+                                if t_type == '\x03':
+                                    pass
 
             if domain not in self.keys['domains'] and domain != None:
                 self.keys['domains'].append(domain)
@@ -152,7 +164,7 @@ class LLDP:
 
             hostname = system_name
             if hostname not in self.keys['gateways'].keys() and hostname != None:
-                self.keys['gateways'].update({hostname: {'mac': mac, 'ipv6': ipv6, 'domain': domain, 'sysinfo': system_description, 'ipv4': mgt_ipv4, 'mgt_802': mgt_802, 'mgt_addr_type': mgt_address_type, 'address': address, 'chassis_id_mac': chassis_id_mac, 'os': os, 'protocol': protocol, 'notes': notes}})
+                self.keys['gateways'].update({hostname: {'mac': mac, 'ipv6': ipv6, 'domain': domain, 'sysinfo': system_description, 'ipv4': mgt_ipv4, 'mgt_802': mgt_802, 'mgt_addr_type': mgt_address_type, 'address': address, 'chassis_id_mac': chassis_id_mac, 'os': os, 'protocol': protocol, 'lldp_port_id': lldp_port_id, 'lldp_vlan': lldp_vlan, 'notes': notes}})
 
 
         return self.keys

@@ -23,6 +23,7 @@ class WINBROWSER:
     def search(self):
 
         username = None
+        username_host = None
         broadcast = None
 
         if self.packet.getlayer(IP):
@@ -35,7 +36,8 @@ class WINBROWSER:
                     logon_index = raw_packet.index('\x12')
                     check_logon = raw_packet[logon_index + 1]
                     if check_logon == '\x00':
-                        username = ''.join(raw_packet[logon_index + 4 + 10: logon_index + 4 + 10 + 26])
+                        username = ''.join(raw_packet[logon_index + 4 + 10: logon_index + 4 + 10 + 26]).replace('\x00', '')
+                        username_host = ''.join(raw_packet[(logon_index + 4): (logon_index + 4 + 10)]).replace('\x00', '')
 
         if self.packet.getlayer(UDP) and self.packet.getlayer(NBTDatagram) and self.packet[UDP].sport == 138 and self.packet[UDP].dport == 138:
 
@@ -55,12 +57,13 @@ class WINBROWSER:
             notes = None
             attack = None
             protocol = 'Windows Browser Datagram'
-
+            host_comment = None
             server_type = ''.join(list(raw_packet[110:114])).encode('hex')
             little_endian_server_type = ''.join(list(raw_packet[110:114])[::-1]).encode('hex')
 
             if browser_cmd[1] == '\x01':
                 announcement = "Host Announcement"
+                host_comment = ''.join(raw_packet[(86 + 32):]).strip()
 
             elif browser_cmd[1] == '\x02':
                 announcement = "Request Announcement"
@@ -72,10 +75,9 @@ class WINBROWSER:
                 announcement = "Domain/Workgroup Announcement"
 
             elif browser_cmd[1] == '\x0f':
-                announcement = "Local Master Announcement"
 
-                if raw_packet[118:] != ['\x00']:
-                    host_comment = ''.join(raw_packet[118:]).strip()
+                announcement = "Local Master Announcement"
+                host_comment = ''.join(raw_packet[(86 + 32):]).strip()
 
             else:
                 announcement = None
@@ -146,13 +148,13 @@ class WINBROWSER:
 
                 sid_keys = dict(zip(server_type_keys,server_type_values))
 
-            if username not in self.keys['usernames'] and username != None:
-                self.keys['usernames'].append(username)
+            if {username: username_host} not in self.keys['usernames'] and username != None:
+                self.keys['usernames'].append({username: username_host})
 
             if 'MSBROWSE' in domain:
                 domain = 'MSBROWSE'
 
-            if domain not in self.keys['domains'] and domain != None and 'MSBROWSE' not in domain:
+            if domain not in self.keys['domains'] and domain != None and 'MSBROWSE' not in domain and domain not in self.keys['hosts'].keys():
                 self.keys['domains'].append(domain)
 
             if dport not in self.keys['ports']:
@@ -174,7 +176,7 @@ class WINBROWSER:
                 self.keys['dns'].append(dns)
 
             if hostname not in self.keys['hosts'].keys() and hostname != None:
-                self.keys['hosts'].update({hostname: {'mac': mac, 'domain': domain, 'ipv4': host_ipv4, 'ipv6': ipv6, 'os': os, 'notes': notes, 'protocol': protocol, 'segment': segment, 'server_keys': sid_keys}})
+                self.keys['hosts'].update({hostname: {'mac': mac, 'domain': domain, 'ipv4': host_ipv4, 'ipv6': ipv6, 'os': os, 'notes': notes, 'protocol': protocol, 'segment': segment, 'server_keys': sid_keys, 'comment': host_comment}})
 
             else:
 

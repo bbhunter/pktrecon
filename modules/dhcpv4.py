@@ -19,8 +19,7 @@ class DHCPV4:
         self.packet = packet
 
     def search(self):
-
-        datasets = ['server_id','client_id','router','name_server','hostname','vendor_class_id','time_zone', 'lease_time', 'renewal_time', 'rebinding_time', 'broadcast_address','domain','NetBIOS_server']
+        datasets = ['66', '120', 'server_id','client_id','router','name_server','hostname','vendor_class_id','time_zone', 'lease_time', 'renewal_time', 'rebinding_time', 'broadcast_address','domain','NetBIOS_server']
         if self.packet.getlayer(IP) and self.packet.getlayer(BOOTP):
             raw_packet = list(str(self.packet[BOOTP]))
             ipv4 = None
@@ -61,7 +60,7 @@ class DHCPV4:
                 testkeys.update({'mac': mac, 'domain': domain, 'ipv4': ipv4, 'ipv6': ipv6, 'os': os, 'notes': notes, 'server_keys': sid_keys})
 
                 if 'hostname' in testkeys.keys() and testkeys['hostname'] not in self.keys['hosts'].keys() and testkeys['hostname'] != None:
-                    self.keys['hosts'].update({hostname: testkeys})
+                    self.keys['hosts'].update({testkeys['hostname']: testkeys})
 
             if boot_type == 2:
 

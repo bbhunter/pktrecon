@@ -72,7 +72,7 @@ class NBNS:
             if dport not in self.keys['ports']:
                 self.keys['ports'].append(dport)
 
-            if domain not in self.keys['domains'] and domain != None and '__MSBROWSE__' not in domain:
+            if domain not in self.keys['domains'] and domain not in self.keys['hosts'].keys() and domain != None and '__MSBROWSE__' not in domain:
                 self.keys['domains'].append(domain)
 
             if protocol not in self.keys['protocols']:
