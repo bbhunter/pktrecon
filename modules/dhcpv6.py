@@ -24,7 +24,9 @@ class DHCPV6:
         if self.packet.getlayer(IPv6) and self.packet.getlayer(DHCP6_Solicit):
 
            mac = self.packet[Ether].src
+           fqdn = self.packet[DHCP6_Solicit].fqdn
            hostname = fqdn.split('.')[0]
+
            ipv6 = self.packet[IPv6].src
            ipv4 = None
            domain = '.'.join(fqdn.split('.')[1:]).rstrip('.').upper()
